@@ -153,7 +153,6 @@ describe('CRUD operations on sweets', ()=>{
             password: 'admin123'
         })
         adminToken = admin.data.token
-        console.log(adminToken);
         
         const {response: user} = await signup()
         userToken = user.data.token
@@ -348,6 +347,28 @@ describe('CRUD operations on sweets', ()=>{
         // Test DELETE endpoint
         try {
             await axios.delete(`${BASE_URL}/sweets/1`)
+        } catch (error) {
+            expect(error.response.status).toBe(401)
+        }
+    })
+
+    test('User can search/filter sweets', async()=>{
+        const searchWith = {
+            name: 'Test Sweet',
+            category: 'Test Category'
+        }
+        try {
+        const response = await axios.get(`${BASE_URL}/sweets/search`, 
+            searchWith,
+            {
+                headers: {
+                    'Authorization': `Bearer ${userToken}`
+                }
+            }
+        )
+
+        expect(response.status).toBe(200)
+        expect(Array.isArray(response.data)).toBe(true)
         } catch (error) {
             expect(error.response.status).toBe(401)
         }
