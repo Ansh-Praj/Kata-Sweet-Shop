@@ -88,7 +88,7 @@ describe('Purchase and Restock (Inventory)', ()=>{
         })
         adminToken = admin.data.token
 
-        const {email, response: user} = await signup()
+        const {response: user} = await signup()
         userToken = user.data.token
     });
 
@@ -143,6 +143,207 @@ describe('Purchase and Restock (Inventory)', ()=>{
     })
 })
 
+describe('CRUD operations on sweets', ()=>{
+    let adminToken = ''
+    let userToken = ''
+    //will run before tests
+    beforeAll(async() => {
+        const admin = await axios.post(`${BASE_URL}/auth/login`,{
+            email: 'admin@test.com',
+            password: 'admin123'
+        })
+        adminToken = admin.data.token
+
+        const {response: user} = await signup()
+        userToken = user.data.token
+    });
+
+    test('Admin can add a new sweet', async()=>{
+        const sweetData = {
+            name: 'Test Sweet',
+            price: 10.99,
+            stock: 50,
+            description: 'A delicious test sweet'
+        }
+
+        const response = await axios.post(`${BASE_URL}/sweets`, 
+            sweetData,
+            {
+                headers: {
+                    'Authorization': `Bearer ${adminToken}`,
+                    'Content-Type': 'application/json'
+                }
+            }
+        )
+
+        expect(response.status).toBe(200)
+        expect(response.data).toHaveProperty('message')
+        expect(response.data.message).toBe("Sweet added successfully")
+    })
+
+    test('Regular user cannot add a new sweet', async()=>{
+        const sweetData = {
+            name: 'Test Sweet',
+            price: 10.99,
+            stock: 50,
+            description: 'A delicious test sweet'
+        }
+
+        try {
+            const response = await axios.post(`${BASE_URL}/sweets`, 
+                sweetData,
+                {
+                    headers: {
+                        'Authorization': `Bearer ${userToken}`,
+                        'Content-Type': 'application/json'
+                    }
+                }
+            )
+        } catch (error) {
+            expect(error.response.status).toBe(403)
+            expect(error.response.data).toHaveProperty('message')
+            expect(error.response.data.message).toBe("Access denied. Admin privileges required.")
+        }
+    })
+
+    test('Admin can update a sweet', async()=>{
+        const updateData = {
+            name: 'Updated Sweet Name',
+            price: 15.99,
+            stock: 75
+        }
+
+        const response = await axios.put(`${BASE_URL}/sweets/1`, 
+            updateData,
+            {
+                headers: {
+                    'Authorization': `Bearer ${adminToken}`,
+                    'Content-Type': 'application/json'
+                }
+            }
+        )
+
+        expect(response.status).toBe(200)
+        expect(response.data).toHaveProperty('message')
+        expect(response.data.message).toBe("Sweet updated successfully")
+    })
+
+    test('Regular user cannot update a sweet', async()=>{
+        const updateData = {
+            name: 'Updated Sweet Name',
+            price: 15.99,
+            stock: 75
+        }
+
+        try {
+            const response = await axios.put(`${BASE_URL}/sweets/1`, 
+                updateData,
+                {
+                    headers: {
+                        'Authorization': `Bearer ${userToken}`,
+                        'Content-Type': 'application/json'
+                    }
+                }
+            )
+        } catch (error) {
+            expect(error.response.status).toBe(403)
+            expect(error.response.data).toHaveProperty('message')
+            expect(error.response.data.message).toBe("Access denied. Admin privileges required.")
+        }
+    })
+
+    test('Admin can delete a sweet', async()=>{
+        const response = await axios.delete(`${BASE_URL}/sweets/1`, 
+            {
+                headers: {
+                    'Authorization': `Bearer ${adminToken}`,
+                }
+            }
+        )
+
+        expect(response.status).toBe(200)
+        expect(response.data).toHaveProperty('message')
+        expect(response.data.message).toBe("Sweet deleted successfully")
+    })
+
+    test('Regular user cannot delete a sweet', async()=>{
+        try {
+            const response = await axios.delete(`${BASE_URL}/sweets/1`, 
+                {
+                    headers: {
+                        'Authorization': `Bearer ${userToken}`
+                    }
+                }
+            )
+        } catch (error) {
+            expect(error.response.status).toBe(403)
+            expect(error.response.data).toHaveProperty('message')
+            expect(error.response.data.message).toBe("Access denied. Admin privileges required.")
+        }
+    })
+
+    test('Both admin and regular user can view sweets', async()=>{
+        // Test with admin token
+        const adminResponse = await axios.get(`${BASE_URL}/sweets`, 
+            {
+                headers: {
+                    'Authorization': `Bearer ${adminToken}`
+                }
+            }
+        )
+
+        expect(adminResponse.status).toBe(200)
+        expect(Array.isArray(adminResponse.data)).toBe(true)
+
+        // Test with user token
+        const userResponse = await axios.get(`${BASE_URL}/sweets`, 
+            {
+                headers: {
+                    'Authorization': `Bearer ${userToken}`
+                }
+            }
+        )
+
+        expect(userResponse.status).toBe(200)
+        expect(Array.isArray(userResponse.data)).toBe(true)
+    })
+
+    test('Unauthenticated user cannot access any sweets endpoint', async()=>{
+        // Test GET endpoint
+        try {
+            await axios.get(`${BASE_URL}/sweets`)
+        } catch (error) {
+            expect(error.response.status).toBe(401)
+        }
+
+        // Test POST endpoint
+        try {
+            await axios.post(`${BASE_URL}/sweets`, {
+                name: 'Test Sweet',
+                price: 10.99,
+                stock: 50
+            })
+        } catch (error) {
+            expect(error.response.status).toBe(401)
+        }
+
+        // Test PUT endpoint
+        try {
+            await axios.put(`${BASE_URL}/sweets/1`, {
+                name: 'Updated Sweet'
+            })
+        } catch (error) {
+            expect(error.response.status).toBe(401)
+        }
+
+        // Test DELETE endpoint
+        try {
+            await axios.delete(`${BASE_URL}/sweets/1`)
+        } catch (error) {
+            expect(error.response.status).toBe(401)
+        }
+    })
+})
 
 async function signup(){
     const email = 'test' + Math.random() + '@test.com'
