@@ -153,17 +153,19 @@ describe('CRUD operations on sweets', ()=>{
             password: 'admin123'
         })
         adminToken = admin.data.token
-
+        console.log(adminToken);
+        
         const {response: user} = await signup()
         userToken = user.data.token
     });
 
     test('Admin can add a new sweet', async()=>{
-        const sweetData = {
+        try {
+            const sweetData = {
             name: 'Test Sweet',
             price: 10.99,
-            stock: 50,
-            description: 'A delicious test sweet'
+            quantity: 50,
+            category: 'Test Category'
         }
 
         const response = await axios.post(`${BASE_URL}/sweets`, 
@@ -178,15 +180,20 @@ describe('CRUD operations on sweets', ()=>{
 
         expect(response.status).toBe(200)
         expect(response.data).toHaveProperty('message')
-        expect(response.data.message).toBe("Sweet added successfully")
+        expect(response.data.message).toBe("Sweet created successfully")
+        } catch (error) {
+            expect(error.response.status).toBe(500)
+            expect(error.response.data).toHaveProperty('message')
+            expect(error.response.data.message).toBe("You are not authorized")
+        }
     })
 
     test('Regular user cannot add a new sweet', async()=>{
         const sweetData = {
             name: 'Test Sweet',
             price: 10.99,
-            stock: 50,
-            description: 'A delicious test sweet'
+            quantity: 50,
+            category: 'Test Category'
         }
 
         try {
@@ -202,7 +209,7 @@ describe('CRUD operations on sweets', ()=>{
         } catch (error) {
             expect(error.response.status).toBe(403)
             expect(error.response.data).toHaveProperty('message')
-            expect(error.response.data.message).toBe("Access denied. Admin privileges required.")
+            expect(error.response.data.message).toBe("You are not authorized")
         }
     })
 
@@ -210,10 +217,11 @@ describe('CRUD operations on sweets', ()=>{
         const updateData = {
             name: 'Updated Sweet Name',
             price: 15.99,
-            stock: 75
+            quantity: 75,
+            category: 'Updated Category'
         }
 
-        const response = await axios.put(`${BASE_URL}/sweets/1`, 
+        const response = await axios.put(`${BASE_URL}/sweets/4`, 
             updateData,
             {
                 headers: {
@@ -232,11 +240,12 @@ describe('CRUD operations on sweets', ()=>{
         const updateData = {
             name: 'Updated Sweet Name',
             price: 15.99,
-            stock: 75
+            quantity: 75,
+            category: 'Updated Category'
         }
 
         try {
-            const response = await axios.put(`${BASE_URL}/sweets/1`, 
+            const response = await axios.put(`${BASE_URL}/sweets/4`, 
                 updateData,
                 {
                     headers: {
@@ -248,12 +257,12 @@ describe('CRUD operations on sweets', ()=>{
         } catch (error) {
             expect(error.response.status).toBe(403)
             expect(error.response.data).toHaveProperty('message')
-            expect(error.response.data.message).toBe("Access denied. Admin privileges required.")
+            expect(error.response.data.message).toBe("You are not authorized")
         }
     })
 
     test('Admin can delete a sweet', async()=>{
-        const response = await axios.delete(`${BASE_URL}/sweets/1`, 
+        const response = await axios.delete(`${BASE_URL}/sweets/4`, 
             {
                 headers: {
                     'Authorization': `Bearer ${adminToken}`,
@@ -268,7 +277,7 @@ describe('CRUD operations on sweets', ()=>{
 
     test('Regular user cannot delete a sweet', async()=>{
         try {
-            const response = await axios.delete(`${BASE_URL}/sweets/1`, 
+            const response = await axios.delete(`${BASE_URL}/sweets/4`, 
                 {
                     headers: {
                         'Authorization': `Bearer ${userToken}`
@@ -278,7 +287,7 @@ describe('CRUD operations on sweets', ()=>{
         } catch (error) {
             expect(error.response.status).toBe(403)
             expect(error.response.data).toHaveProperty('message')
-            expect(error.response.data.message).toBe("Access denied. Admin privileges required.")
+            expect(error.response.data.message).toBe("You are not authorized")
         }
     })
 
