@@ -18,4 +18,9 @@ export const SweetSchema = z.object({
     category: z.string()
 })
 
-
+export const SearchSchema = z.object({
+    name: z.string().optional(),
+    category: z.string().optional(),
+    startPrice: z.coerce.number().optional(),
+    endPrice: z.coerce.number().optional(),
+})
