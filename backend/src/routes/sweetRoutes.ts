@@ -23,6 +23,7 @@ sweetRouter.get('/search', userAuthenticate, async(req, res)=>{
         return res.status(400).json({message: "Validation Failed"})
     }
     try {
+        
         const {name, category, startPrice, endPrice} = parsedData.data
 
         // use filters dynamically only when provided

@@ -354,13 +354,12 @@ describe('CRUD operations on sweets', ()=>{
 
     test('User can search/filter sweets', async()=>{
         const searchWith = {
-            name: 'Test Sweet',
-            category: 'Test Category'
+            name: 'Ladoo'
         }
-        try {
+        
         const response = await axios.get(`${BASE_URL}/sweets/search`, 
-            searchWith,
             {
+                params: searchWith,
                 headers: {
                     'Authorization': `Bearer ${userToken}`
                 }
@@ -369,9 +368,8 @@ describe('CRUD operations on sweets', ()=>{
 
         expect(response.status).toBe(200)
         expect(Array.isArray(response.data)).toBe(true)
-        } catch (error) {
-            expect(error.response.status).toBe(401)
-        }
+        expect(response.data.length).toBeGreaterThan(-1)
+        
     })
 })
 
