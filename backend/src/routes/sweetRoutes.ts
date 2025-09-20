@@ -56,13 +56,14 @@ sweetRouter.post('/', adminAuthenticate, async(req, res)=>{
         return res.status(400).json({message: "Validation Failed"})
     }
     try {
-        const {name, price, quantity, category} = parsedData.data
+        const {name, price, quantity, category, imageUrl} = parsedData.data
         const sweet = await prisma.sweet.create({
             data: {
                 name,
                 price: Number(price),
                 quantity: Number(quantity),
-                category
+                category,
+                imageUrl
             }
         })
         res.json({message: `Sweet created successfully`})
@@ -78,7 +79,7 @@ sweetRouter.put('/:id', adminAuthenticate, async(req, res)=>{
         return res.status(400).json({message: "Validation Failed"})
     }
     try {
-        const {name, price, quantity, category} = parsedData.data
+        const {name, price, quantity, category, imageUrl} = parsedData.data
         const sweet = await prisma.sweet.update({
             where: {
                 id: Number(req.params.id)
@@ -87,7 +88,8 @@ sweetRouter.put('/:id', adminAuthenticate, async(req, res)=>{
                 name,
                 price: Number(price),
                 quantity: Number(quantity),
-                category
+                category,
+                imageUrl
             }
         })
         res.json({message: `Sweet updated successfully`})
@@ -97,6 +99,7 @@ sweetRouter.put('/:id', adminAuthenticate, async(req, res)=>{
     }
 
 })
+
 sweetRouter.delete('/:id', adminAuthenticate, async(req, res)=>{
     try {
         const sweet = await prisma.sweet.delete({
