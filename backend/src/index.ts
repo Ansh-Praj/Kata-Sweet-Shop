@@ -6,7 +6,6 @@ const app = Express()
 const port = Number(process.env.PORT) || 5000
 
 app.use(cors())
-app.options('*', cors());
 
 app.use(Express.json())
 app.use(Express.urlencoded({extended: true}))
