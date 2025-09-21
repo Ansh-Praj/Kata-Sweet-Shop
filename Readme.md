@@ -14,7 +14,9 @@ A modern full‑stack application for managing a sweet shop. It provides invento
 - Backend: Node.js + Express + TypeScript
 - Database/ORM: Prisma + PostgreSQL (hosted on Render)
 
-
+## Admin 
+Username: admin@test.com
+Password: admin123
 
 ---
 
