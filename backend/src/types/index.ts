@@ -25,3 +25,8 @@ export const SearchSchema = z.object({
     startPrice: z.coerce.number().optional(),
     endPrice: z.coerce.number().optional(),
 })
+
+export const PurchaseSchema = z.object({
+    sweetId: z.coerce.number().int().positive(),
+    quantity: z.coerce.number().int().positive(),
+})
