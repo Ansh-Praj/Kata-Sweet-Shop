@@ -3,7 +3,7 @@ import router from './routes/index.js'
 import cors from 'cors'
 
 const app = Express()
-const port = 3000
+const port = Number(process.env.PORT) || 5000
 
 app.use(cors())
 
@@ -13,7 +13,5 @@ app.use('/api', router)
 
 
 app.listen(port, () => {
-  console.log(`Example app listening on port ${port}`)
+  console.log(`Server listening on port ${port}`)
 })
-
-
