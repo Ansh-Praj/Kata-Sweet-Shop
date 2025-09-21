@@ -3,6 +3,7 @@ import { userAuthenticate } from "../middleware/user.js";
 import { adminAuthenticate } from "../middleware/admin.js";
 import prisma from "../prisma.js";
 import { SearchSchema, SweetSchema, PurchaseSchema } from "../types/index.js";
+import type { Prisma } from "@prisma/client";
 
 const sweetRouter = Router() 
 
@@ -123,7 +124,7 @@ sweetRouter.post('/purchase', userAuthenticate, async (req, res) => {
     }
     const { sweetId, quantity } = parsed.data
     try {
-        const result = await prisma.$transaction(async (tx) => {
+        const result = await prisma.$transaction(async (tx: Prisma.TransactionClient) => {
             const sweet = await tx.sweet.findUnique({ where: { id: Number(sweetId) } })
             if (!sweet) {
                 throw new Error('Sweet not found')
