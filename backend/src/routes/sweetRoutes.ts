@@ -2,7 +2,7 @@ import { Router } from "express";
 import { userAuthenticate } from "../middleware/user.js";
 import { adminAuthenticate } from "../middleware/admin.js";
 import prisma from "../prisma.js";
-import { SearchSchema, SweetSchema } from "../types/index.js";
+import { SearchSchema, SweetSchema, PurchaseSchema } from "../types/index.js";
 
 const sweetRouter = Router() 
 
@@ -112,6 +112,36 @@ sweetRouter.delete('/:id', adminAuthenticate, async(req, res)=>{
     } catch (error) {
         console.error("Failed to delete sweet:", error)
         res.status(500).json({ message: "Failed to delete sweet"})
+    }
+})
+
+// user purchase
+sweetRouter.post('/purchase', userAuthenticate, async (req, res) => {
+    const parsed = PurchaseSchema.safeParse(req.body)
+    if (!parsed.success) {
+        return res.status(400).json({ message: 'Validation Failed' })
+    }
+    const { sweetId, quantity } = parsed.data
+    try {
+        const result = await prisma.$transaction(async (tx) => {
+            const sweet = await tx.sweet.findUnique({ where: { id: Number(sweetId) } })
+            if (!sweet) {
+                throw new Error('Sweet not found')
+            }
+            if (sweet.quantity < quantity) {
+                throw new Error(`Not enough stock. Available: ${sweet.quantity}`)
+            }
+            await tx.sweet.update({
+                where: { id: Number(sweetId) },
+                data: { quantity: sweet.quantity - quantity },
+            })
+            return { remaining: sweet.quantity - quantity }
+        })
+        return res.json({ message: 'Purchase successful', remaining: result.remaining })
+    } catch (err: any) {
+        const msg = err?.message || 'Failed to complete purchase'
+        const status = msg.includes('not found') ? 404 : msg.includes('Not enough stock') ? 400 : 500
+        return res.status(status).json({ message: msg })
     }
 })
 
