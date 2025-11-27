@@ -43,7 +43,7 @@ export default function Hero() {
           <div>
             <span data-animate className="inline-flex items-center gap-2 rounded-full bg-rose-100 text-rose-700 px-3 py-1 text-xs font-medium ring-1 ring-inset ring-rose-200">
               New
-              <span className="hidden sm:inline">— Manage your sweet shop effortlessly</span>
+              <span className="sm:inline">— Manage your sweet shop effortlessly</span>
             </span>
             <h1 data-animate className="mt-4 text-4xl sm:text-5xl lg:text-6xl font-extrabold leading-tight">
               Delightful shop management for busy owners

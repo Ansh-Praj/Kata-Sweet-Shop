@@ -38,6 +38,7 @@ export default function SignIn() {
 
   return (
     <section className="min-h-[calc(100vh-4rem)] scroll-mt-24 grid place-items-center px-4">
+    <h1 className='bg-rose-400 px-3 py-1 rounded-xl relative top-20'>Note: This feature might not work due to the expiration of the free database hosting</h1>
       <div className="w-full max-w-md rounded-xl border border-border bg-card p-6 shadow-sm">
         <h1 className="text-2xl font-bold">Sign in</h1>
         <p className="mt-1 text-sm text-muted-foreground">Access your sweets dashboard.</p>
